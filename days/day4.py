@@ -1,0 +1,43 @@
+from dataclasses import dataclass
+from utils.aoc_utils import AOCDay, day
+
+
+@dataclass
+class Card:
+    winning_numbers: list[int]
+    your_numbers: list[int]
+    nb_copy: int
+
+
+@day(4)
+class Day4(AOCDay):
+    def common(self):
+        self.cards: list[Card] = []
+
+        for line in self.inputData:
+            _, rest = line.split(':')
+
+            winnings, yours = rest.split('|')
+
+            winnings = winnings.strip().replace('  ', ' ').split(' ')
+            yours = yours.strip().replace('  ', ' ').split(' ')
+
+            self.cards.append(
+                Card([int(x) for x in winnings], [int(x) for x in yours], 1))
+
+    def get_nb_points(self, card_index: int, card: Card) -> int:
+        nb_match = sum(
+            1 for nb in card.winning_numbers if nb in card.your_numbers)
+        if nb_match == 0:
+            return 0
+
+        for j in range(1, nb_match + 1):
+            self.cards[card_index + j].nb_copy += card.nb_copy
+
+        return 2 ** (nb_match - 1)
+
+    def part1(self):
+        return sum([self.get_nb_points(i, card) for i, card in enumerate(self.cards)])
+
+    def part2(self):
+        return sum([card.nb_copy for card in self.cards])
