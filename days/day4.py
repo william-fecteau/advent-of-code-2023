@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from utils.aoc_utils import AOCDay, day
+import re
 
 
 @dataclass
@@ -14,16 +15,15 @@ class Day4(AOCDay):
     def common(self):
         self.cards: list[Card] = []
 
+        regex = re.compile(r'Card +\d+: ([ \d]+) \| ([ \d]+)')
+
         for line in self.inputData:
-            _, rest = line.split(':')
+            match = re.search(regex, line)
 
-            winnings, yours = rest.split('|')
+            winnings = [int(x) for x in match.group(1).split()]
+            yours = [int(x) for x in match.group(2).split()]
 
-            winnings = winnings.strip().replace('  ', ' ').split(' ')
-            yours = yours.strip().replace('  ', ' ').split(' ')
-
-            self.cards.append(
-                Card([int(x) for x in winnings], [int(x) for x in yours], 1))
+            self.cards.append(Card(winnings, yours, 1))
 
     def get_nb_points(self, card_index: int, card: Card) -> int:
         nb_match = sum(
